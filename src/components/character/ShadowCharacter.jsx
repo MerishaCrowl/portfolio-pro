@@ -1,6 +1,8 @@
-import { useRef } from 'react'
+import { useRef, useEffect } from 'react'
 import { useFrame } from '@react-three/fiber'
+import { useGLTF, useAnimations } from '@react-three/drei'
 import { IridescentMaterial } from '../effects/IridescentMaterial'
+
 
 /**
  * SHADOW CHARACTER
@@ -19,62 +21,26 @@ import { IridescentMaterial } from '../effects/IridescentMaterial'
  */
 
 export function ShadowCharacter({ position = [0, 0, 0] }) {
+    // THIS is your ref
   const groupRef = useRef()
+
+    const { scene, animations } = useGLTF('/models/character/character.glb')
+    const { actions } = useAnimations(animations, groupRef)
   
-  // Simple walking animation
-  useFrame((state) => {
-    if (!groupRef.current) return
-    
-    const time = state.clock.elapsedTime
-    
-    // Gentle bobbing motion (simulates walking)
-    groupRef.current.position.y = Math.sin(time * 4) * 0.05 + position[1]
-    
-    // Subtle swaying
-    groupRef.current.rotation.z = Math.sin(time * 2) * 0.03
-  })
+  useEffect(() => {
+  if (!actions) return
+
+  console.log('Available animations:', actions)
+
+  const first = Object.values(actions)[0]
+  first?.reset().fadeIn(0.5).play()
+
+  return () => first?.fadeOut(0.5)
+}, [actions])
   
   return (
     <group ref={groupRef} position={position}>
-      {/* Head */}
-      <mesh position={[0, 1.6, 0]}>
-        <sphereGeometry args={[0.2, 32, 32]} />
-        <IridescentMaterial intensity={1.2} frequency={1.5} />
-      </mesh>
-      
-      {/* Torso - using a torus to simulate hollow effect */}
-      <mesh position={[0, 1.1, 0]}>
-        <torusGeometry args={[0.15, 0.05, 16, 32]} />
-        <IridescentMaterial intensity={1.0} frequency={1.2} />
-      </mesh>
-      <mesh position={[0, 0.9, 0]}>
-        <torusGeometry args={[0.12, 0.04, 16, 32]} />
-        <IridescentMaterial intensity={1.0} frequency={1.2} />
-      </mesh>
-      <mesh position={[0, 0.7, 0]}>
-        <torusGeometry args={[0.1, 0.04, 16, 32]} />
-        <IridescentMaterial intensity={1.0} frequency={1.2} />
-      </mesh>
-      
-      {/* Arms - simplified */}
-      <mesh position={[-0.25, 1.0, 0]} rotation={[0, 0, -0.5]}>
-        <capsuleGeometry args={[0.03, 0.4, 8, 16]} />
-        <IridescentMaterial intensity={0.9} frequency={1.3} />
-      </mesh>
-      <mesh position={[0.25, 1.0, 0]} rotation={[0, 0, 0.5]}>
-        <capsuleGeometry args={[0.03, 0.4, 8, 16]} />
-        <IridescentMaterial intensity={0.9} frequency={1.3} />
-      </mesh>
-      
-      {/* Legs */}
-      <mesh position={[-0.1, 0.3, 0]}>
-        <capsuleGeometry args={[0.04, 0.5, 8, 16]} />
-        <IridescentMaterial intensity={0.9} frequency={1.3} />
-      </mesh>
-      <mesh position={[0.1, 0.3, 0]}>
-        <capsuleGeometry args={[0.04, 0.5, 8, 16]} />
-        <IridescentMaterial intensity={0.9} frequency={1.3} />
-      </mesh>
+      <primitive object={scene} />
     </group>
   )
 }
