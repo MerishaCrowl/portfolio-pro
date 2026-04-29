@@ -50,7 +50,7 @@ function ProgressIndicator() {
   if (mode !== 'dark') return null
   
   return (
-    <div className="ui-overlay bottom-8 left-1/2 -translate-x-1/2">
+    <div className="fixed bottom-8 left-1/2 transform -translate-x-1/2 z-20">
       <div className="w-48 h-1 bg-white/10 rounded-full overflow-hidden">
         <div 
           className="h-full bg-white/40 rounded-full transition-all duration-100"
@@ -73,7 +73,7 @@ function ModeToggle() {
   if (!journeyCompleted) return null
   
   return (
-    <div className="ui-overlay top-4 right-4">
+    <div className="fixed top-4 right-4 z-20">
       <button
         onClick={() => setMode(mode === 'dark' ? 'light' : 'dark')}
         className="px-4 py-2 bg-white/10 text-white rounded-full text-sm hover:bg-white/20 transition-colors"
@@ -86,7 +86,7 @@ function ModeToggle() {
 
 export default function App() {
   return (
-    <>
+    <div className="w-full h-full">
       {/* Loading screen */}
       <LoadingScreen />
       
@@ -101,6 +101,6 @@ export default function App() {
       {/* UI overlays */}
       <ProgressIndicator />
       <ModeToggle />
-    </>
+    </div>
   )
 }

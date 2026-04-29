@@ -22,36 +22,31 @@ const AuroraMaterialImpl = shaderMaterial(
   vertexShader,
   fragmentShader
 )
-
 extend({ AuroraMaterial: AuroraMaterialImpl })
-
 export function Aurora({ 
   position = [0, 20, -30], 
   scale = [60, 15, 1],
-  minIntensity = 0,
+  minIntensity = 0.1,
   maxIntensity = 0.8 
 }) {
   const materialRef = useRef()
-  const meshRef = useRef()
+  const intensityRef = useRef(maxIntensity * 0.5)  // Start at half intensity
+  const targetIntensityRef = useRef(maxIntensity * 0.5)
+  const lastChangeRef = useRef(0)
   
-  // Track current intensity for smooth fading
-  const intensityRef = useRef(0)
-  const targetIntensityRef = useRef(0)
-  
-  // Randomly change target intensity
   useFrame((state) => {
     const time = state.clock.elapsedTime
     
-    // Every ~10 seconds, maybe change the aurora intensity
-    if (Math.floor(time) % 10 === 0 && Math.random() < 0.02) {
-      // 70% chance to fade in, 30% chance to fade out
-      targetIntensityRef.current = Math.random() < 0.7 
-        ? minIntensity + Math.random() * (maxIntensity - minIntensity)
-        : minIntensity
+    // Change intensity every 8-15 seconds
+    if (time - lastChangeRef.current > 8 + Math.sin(time) * 3.5) {
+      lastChangeRef.current = time
+      // Random target between min and max
+      const range = maxIntensity - minIntensity
+      targetIntensityRef.current = minIntensity + (Math.sin(time * 0.1) * 0.5 + 0.5) * range
     }
     
-    // Smoothly interpolate to target
-    intensityRef.current += (targetIntensityRef.current - intensityRef.current) * 0.01
+    // Smooth interpolation
+    intensityRef.current += (targetIntensityRef.current - intensityRef.current) * 0.005
     
     if (materialRef.current) {
       materialRef.current.uTime = time
@@ -60,8 +55,7 @@ export function Aurora({
   })
   
   return (
-    <mesh ref={meshRef} position={position} scale={scale}>
-      {/* Curved plane for aurora */}
+    <mesh position={position} scale={scale}>
       <planeGeometry args={[1, 1, 32, 32]} />
       <auroraMaterial
         ref={materialRef}

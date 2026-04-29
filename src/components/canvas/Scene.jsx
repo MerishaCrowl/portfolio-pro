@@ -13,62 +13,49 @@ import { ShadowCharacter } from '../character/ShadowCharacter'
 import { JourneyWorld } from '../path/JourneyWorld'
 import { useJourneyStore } from '../../stores/journeyStore'
 
-/**
- * MAIN SCENE
- * 
- * The root 3D scene component.
- * Sets up:
- * - Canvas with proper settings
- * - Lighting
- * - Environment
- * - All 3D elements
- */
-
 function SceneContent() {
   const mode = useJourneyStore((state) => state.mode)
   
   return (
     <>
-      {/* Lighting - very subtle in dark mode */}
+      {/* Lighting */}
       <ambientLight intensity={mode === 'dark' ? 0.1 : 0.5} />
       <directionalLight
         position={[5, 10, 5]}
         intensity={mode === 'dark' ? 0.2 : 1}
-        castShadow
       />
       
-      {/* Environment - affects reflections on iridescent material */}
+      {/* Environment */}
       <Environment preset="night" />
       
-      {/* Background elements - only in dark mode */}
+      {/* Background elements */}
       {mode === 'dark' && (
         <>
-          <StarField count={3000} radius={60} />
+          <StarField count={3000} radius={80} />
           <Aurora 
-            position={[0, 25, -40]} 
-            scale={[80, 20, 1]}
-            minIntensity={0}
-            maxIntensity={0.6}
+            position={[0, 15, -50]} 
+            scale={[100, 25, 1]}
+            minIntensity={0.2}
+            maxIntensity={0.7}
           />
         </>
       )}
       
-      {/* The character stays fixed in view */}
+      {/* Character at ground level */}
       <ShadowCharacter position={[0, 0, 0]} />
       
-      {/* The world moves around her */}
+      {/* World container */}
       <JourneyWorld>
-        {/* Project markers and environmental objects go here */}
-        {/* We'll add these in the next phase */}
+        {/* Future project markers go here */}
       </JourneyWorld>
       
-      {/* Ground plane - barely visible in dark */}
-      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.5, 0]}>
-        <planeGeometry args={[100, 100]} />
+      {/* Ground plane */}
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.5, 0]} receiveShadow>
+        <planeGeometry args={[200, 200]} />
         <meshStandardMaterial 
-          color="#050505" 
+          color="#030303" 
           transparent 
-          opacity={mode === 'dark' ? 0.3 : 1}
+          opacity={0.5}
         />
       </mesh>
     </>
@@ -80,24 +67,25 @@ export function Scene() {
   
   return (
     <Canvas
-      shadows
+      shadows="basic"
       camera={{ 
-        position: [0, 2, 8], 
-        fov: 45,
+        position: [0, 1.5, 6],  // Lower and closer
+        fov: 50,
         near: 0.1,
-        far: 1000
+        far: 500
       }}
       gl={{
         antialias: true,
-        alpha: true,
+        alpha: false,  // Changed to false for solid black background
         powerPreference: 'high-performance'
       }}
+      style={{ background: '#000' }}
       onCreated={() => {
-        // Scene is ready, hide loading screen
         setTimeout(() => setLoading(false), 500)
       }}
     >
-      {/* Performance optimizations */}
+      <color attach="background" args={['#000000']} />
+      
       <AdaptiveDpr pixelated />
       <AdaptiveEvents />
       
