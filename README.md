@@ -224,3 +224,5 @@ portfolio-pro/
 //----------------------------------------------
 
 Insert Screenshot
+
+"Model created with Meshy – CC BY 4.0 License"

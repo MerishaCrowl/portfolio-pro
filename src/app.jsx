@@ -21,6 +21,9 @@ function LoadingScreen() {
       <div className="text-white text-center">
         <div className="animate-pulse text-2xl mb-4">✦</div>
         <p className="text-sm opacity-60">Entering the void...</p>
+        <div className="bg-red-500 text-white p-4">
+  Tailwind test
+</div>
       </div>
     </div>
   )
